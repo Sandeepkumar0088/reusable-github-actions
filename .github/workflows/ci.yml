@@ -1,0 +1,101 @@
+name: CI-CD Common Pipeline
+
+on:
+  workflow_call:
+    inputs:
+      component:
+        required: true
+        type: string
+      appType:
+        required: true
+        type: string
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+      - name: clean package
+        if: ${{  inputs.appType == 'java' }}
+        run: mvn clean package
+      - name: upload artifact
+        if: ${{  inputs.appType == 'java' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: {{  inputs.component  }}-jar
+          path: target/{{  inputs.component  }}-1.0.jar
+          retention-days: 1
+  test:
+    runs-on: self-hosted
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run a one-line script
+        run: echo npm test
+  docker:
+    runs-on: self-hosted
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: download artifact
+        if: ${{  inputs.appType == 'java' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: {{  inputs.component  }}-jar
+          path: ./
+      - name: docker login
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 389841108590.dkr.ecr.us-east-1.amazonaws.com
+      - run: docker build -t 389841108590.dkr.ecr.us-east-1.amazonaws.com/{{  inputs.component  }} .
+        name: docker build
+      - run: docker push 389841108590.dkr.ecr.us-east-1.amazonaws.com/{{  inputs.component  }}
+        name: docker build
+  dev-deploy:
+    runs-on: self-hosted
+    environment: dev
+    needs: docker
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Sandeepkumar0088/roboshop-helm-charts-v1
+      - name: get kubectl config
+        run: aws eks update-kubeconfig --name dev
+      - name: helm deploy app
+        run: helm upgrade -i {{  inputs.component  }} . -f dev-values/{{  inputs.component  }}.yml
+
+  qa-deploy:
+    runs-on: self-hosted
+    needs: dev-deploy
+    environment: qa
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Sandeepkumar0088/roboshop-helm-charts-v1
+      - name: get kubectl config
+        run: echo aws eks update-kubeconfig --name qa
+      - name: helm deploy app
+        run: echo helm upgrade -i {{  inputs.component  }} . -f dev-values/{{  inputs.component  }}.yml
+
+  uat-deploy:
+    runs-on: self-hosted
+    needs: qa-deploy
+    environment: uat
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Sandeepkumar0088/roboshop-helm-charts-v1
+      - name: get kubectl config
+        run: echo aws eks update-kubeconfig --name uat
+      - name: helm deploy app
+        run: echo helm upgrade -i {{  inputs.component  }} . -f dev-values/{{  inputs.component  }}.yml
+
+  prod-deploy:
+    runs-on: self-hosted
+    needs: uat-deploy
+    environment: prod
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: Sandeepkumar0088/roboshop-helm-charts-v1
+      - name: echo get kubectl config
+        run: aws eks update-kubeconfig --name prod
+      - name: helm deploy app
+        run: echo helm upgrade -i {{  inputs.component  }} . -f dev-values/{{  inputs.component  }}.yml
