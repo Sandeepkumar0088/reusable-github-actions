@@ -57,9 +57,9 @@ jobs:
         with:
           repository: Sandeepkumar0088/roboshop-helm-charts-v1
       - name: get kubectl config
-        run: echo aws eks update-kubeconfig --name dev
+        run: aws eks update-kubeconfig --name dev
       - name: helm deploy app
-        run: echo helm upgrade -i ${{  inputs.component  }} . -f dev-values/${{  inputs.component  }}.yml
+        run: helm upgrade -i ${{  inputs.component  }} . -f dev-values/${{  inputs.component  }}.yml
 
   qa-deploy:
     runs-on: self-hosted
