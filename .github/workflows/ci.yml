@@ -40,13 +40,13 @@ jobs:
         if: ${{  inputs.appType == 'java' }}
         uses: actions/download-artifact@v4
         with:
-          name: {{  inputs.component  }}-jar
+          name: ${{  inputs.component  }}-jar
           path: ./
       - name: docker login
         run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 389841108590.dkr.ecr.us-east-1.amazonaws.com
-      - run: docker build -t 389841108590.dkr.ecr.us-east-1.amazonaws.com/{{  inputs.component  }} .
+      - run: docker build -t 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }} .
         name: docker build
-      - run: docker push 389841108590.dkr.ecr.us-east-1.amazonaws.com/{{  inputs.component  }}
+      - run: docker push 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }}
         name: docker build
   dev-deploy:
     runs-on: self-hosted
@@ -59,7 +59,7 @@ jobs:
       - name: get kubectl config
         run: echo aws eks update-kubeconfig --name dev
       - name: helm deploy app
-        run: echo helm upgrade -i {{  inputs.component  }} . -f dev-values/{{  inputs.component  }}.yml
+        run: echo helm upgrade -i ${{  inputs.component  }} . -f dev-values/${{  inputs.component  }}.yml
 
   qa-deploy:
     runs-on: self-hosted
@@ -72,7 +72,7 @@ jobs:
       - name: get kubectl config
         run: echo aws eks update-kubeconfig --name qa
       - name: helm deploy app
-        run: echo helm upgrade -i {{  inputs.component  }} . -f dev-values/{{  inputs.component  }}.yml
+        run: echo helm upgrade -i ${{  inputs.component  }} . -f dev-values/${{  inputs.component  }}.yml
 
   uat-deploy:
     runs-on: self-hosted
@@ -85,7 +85,7 @@ jobs:
       - name: get kubectl config
         run: echo aws eks update-kubeconfig --name uat
       - name: helm deploy app
-        run: echo helm upgrade -i {{  inputs.component  }} . -f dev-values/{{  inputs.component  }}.yml
+        run: echo helm upgrade -i ${{  inputs.component  }} . -f dev-values/${{  inputs.component  }}.yml
 
   prod-deploy:
     runs-on: self-hosted
@@ -98,4 +98,4 @@ jobs:
       - name: echo get kubectl config
         run: aws eks update-kubeconfig --name prod
       - name: helm deploy app
-        run: echo helm upgrade -i {{  inputs.component  }} . -f dev-values/{{  inputs.component  }}.yml
+        run: echo helm upgrade -i ${{  inputs.component  }} . -f dev-values/${{  inputs.component  }}.yml
