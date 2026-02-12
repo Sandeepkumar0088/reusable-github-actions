@@ -60,8 +60,6 @@ jobs:
         run: aws eks update-kubeconfig --name dev
       - name: argocd login
         run: |
-          helm repo add argo https://argoproj.github.io/argo-helm
-          helm install argocd argo/argo-cd
           url=$(kubectl get svc argocd-server -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
           argocd_password= kubectl get secrets argocd-server -o jsonpath='{.data.password}' | base64 --decode
           argocd login $url --insecure --username admin --password $argocd_password
