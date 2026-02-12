@@ -60,14 +60,14 @@ jobs:
         run: aws eks update-kubeconfig --name dev
       - name: argocd login
         run: |
-          url=$(kubectl get svc argocd-server -o jsonpath='{.status.loadbalancer.ingress[*].hostname}')
+          url=$(kubectl get svc argocd-server -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
           argocd_password= kubectl get secrets argocd-server -o jsonpath='{.data.password}' | base64 --decode
           argocd login $url --insecure --username admin --password $argocd_password
       - name: create app in argocd
-        run: argocd app create ${{  inputs.component  }} --repo https://github.com/sdevops5427/roboshop-${{  inputs.component  }}-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --values dev-values/${{  inputs.component  }}.yml
+        run: argocd app create ${{  inputs.component  }} --repo https://github.com/sdevops5427/roboshop-${{  inputs.component  }}-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc
       - name: sync app in argocd
         run: argocd app sync ${{  inputs.component  }}
-      - name: health check
+      - name: argocd app health check
         run: argocd app wait ${{  inputs.component  }} --timeout 60
   qa-deploy:
     runs-on: self-hosted
