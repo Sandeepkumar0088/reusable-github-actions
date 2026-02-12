@@ -72,7 +72,7 @@ jobs:
       - name: get kubectl config
         run: echo aws eks update-kubeconfig --name qa
       - name: helm deploy app
-        run: echo helm upgrade -i ${{  inputs.component  }} . -f dev-values/${{  inputs.component  }}.yml
+        run: echo helm upgrade -i ${{  inputs.component  }} .
 
   uat-deploy:
     runs-on: self-hosted
