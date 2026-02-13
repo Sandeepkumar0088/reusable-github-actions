@@ -60,9 +60,9 @@ jobs:
         run: aws eks update-kubeconfig --name dev
       - name: argocd login
         run: |
-          url=$(kubectl get svc argocd-server -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
-          argocd_password= kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode
-          argocd login $url --username admin --password $argocd_password --insecure
+          url=$(kubectl get svc argocd-server  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
+          argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
+          argocd login $url --insecure --username admin --password $argocd_password
       - name: create app in argocd
         run: argocd app create ${{  inputs.component  }} --repo https://github.com/sdevops5427/roboshop-${{  inputs.component  }}-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc
       - name: sync app in argocd
