@@ -66,9 +66,9 @@ jobs:
       - name: create app in argocd
         run: argocd app create ${{  inputs.component  }} --repo https://github.com/sdevops5427/roboshop-${{  inputs.component  }}-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc
       - name: sync app in argocd
-        run: argocd app sync ${{  inputs.component  }}
+        run: argocd app sync ${{ inputs.component }}
       - name: argocd app health check
-        run: argocd app wait ${{  inputs.component  }} --timeout 60
+        run: argocd app wait ${{ inputs.component }} --timeout 60
   qa-deploy:
     runs-on: self-hosted
     needs: dev-deploy
