@@ -58,17 +58,9 @@ jobs:
           repository: Sandeepkumar0088/roboshop-helm-charts-v1
       - name: get kubectl config
         run: aws eks update-kubeconfig --name dev
-      - name: argocd login
-        run: |
-          url=$(kubectl get svc argocd-server  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
-          argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
-          argocd login $url --insecure --username admin --password $argocd_password
-      - name: create app in argocd
-        run: argocd app create ${{  inputs.component  }} --repo https://github.com/sdevops5427/roboshop-${{  inputs.component  }}-v1.git --path ./.github/workflows/ --dest-namespace default --dest-server https://kubernetes.default.svc
-      - name: sync app in argocd
-        run: argocd app sync ${{ inputs.component }}
-      - name: argocd app health check
-        run: argocd app wait ${{ inputs.component }} --timeout 60
+      - name: helm deploy app
+        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership
+
   qa-deploy:
     runs-on: self-hosted
     needs: dev-deploy
@@ -80,7 +72,7 @@ jobs:
       - name: get kubectl config
         run: echo aws eks update-kubeconfig --name qa
       - name: helm deploy app
-        run: echo helm upgrade -i ${{  inputs.component  }} . -f dev-values/${{  inputs.component  }}.yml
+        run: echo helm upgrade -i ${{  inputs.component  }} .
 
   uat-deploy:
     runs-on: self-hosted
