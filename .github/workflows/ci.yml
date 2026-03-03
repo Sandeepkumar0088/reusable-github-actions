@@ -56,21 +56,21 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: Sandeepkumar0088/roboshop-helm-charts-v1
-#      - name: get kubectl config
-#        run: aws eks update-kubeconfig --name dev
-#      - name: helm deploy app
-#        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership
-      - name: argocd login
-        run: |
-          url=$(kubectl get svc argocd-server  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
-          argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
-          argocd login https://argocd-dev.sandeepkumar0088.online/ --insecure --username admin --password $argocd_password
-      - name: Create App in ArgoCD
-        run: argocd app create ${{ inputs.component }} --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc
-      - name: Sync App in ArgoCD
-        run: argocd app sync ${{ inputs.component }}
-      - name: ArgoCD App health Check
-        run: argocd app wait ${{ inputs.component }} --timeout 60
+      - name: get kubectl config
+        run: aws eks update-kubeconfig --name dev
+      - name: helm deploy app
+        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership
+#      - name: argocd login
+#        run: |
+#          url=$(kubectl get svc argocd-server  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
+#          argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
+#          argocd login https://argocd-dev.sandeepkumar0088.online/ --insecure --username admin --password $argocd_password
+#      - name: Create App in ArgoCD
+#        run: argocd app create ${{ inputs.component }} --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc
+#      - name: Sync App in ArgoCD
+#        run: argocd app sync ${{ inputs.component }}
+#      - name: ArgoCD App health Check
+#        run: argocd app wait ${{ inputs.component }} --timeout 60
   qa-deploy:
     runs-on: self-hosted
     needs: dev-deploy
