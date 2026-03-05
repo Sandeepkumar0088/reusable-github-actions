@@ -44,9 +44,9 @@ jobs:
           path: ./
       - name: docker login
         run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 389841108590.dkr.ecr.us-east-1.amazonaws.com
-      - run: docker build -t 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }} .
+      - run: docker build -t 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }}:${{ .github.sha }} .
         name: docker build
-      - run: docker push 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }}
+      - run: docker push 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }}:${{ .github.sha }}
         name: docker build
   dev-deploy:
     runs-on: self-hosted
@@ -59,14 +59,14 @@ jobs:
       - name: get kubectl config
         run: aws eks update-kubeconfig --name dev
       - name: helm deploy app
-        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership
+        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership --set apiVersion=${{ github.sha }}
 #      - name: argocd login
 #        run: |
 #          url=$(kubectl get svc argocd-server  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
 #          argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
 #          argocd login https://argocd-dev.sandeepkumar0088.online/ --insecure --username admin --password $argocd_password
 #      - name: Create App in ArgoCD
-#        run: argocd app create ${{ inputs.component }} --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc
+#        run: argocd app create ${{ inputs.component }} --upsert --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --helm-set appVersion = ${{ github.sha }}
 #      - name: Sync App in ArgoCD
 #        run: argocd app sync ${{ inputs.component }}
 #      - name: ArgoCD App health Check
