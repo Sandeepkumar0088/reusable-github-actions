@@ -61,8 +61,10 @@ jobs:
       - name: argocd login
         run: |
           kubectl get all -n argocd
-          url=$(kubectl get svc argocd-server -n argocd -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
-          argocd_password= kubectl -n argocd get secrets argocd-server -o jsonpath='{.data.password}' | base64 --decode
+          url=$(kubectl get svc argocd-server -n argocd \
+          -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          password=$(kubectl -n argocd get secret argocd-initial-admin-secret \
+          -o jsonpath="{.data.password}" | base64 -d)
           argocd login $url --insecure --username admin --password $argocd_password
       - name: create app in argocd
         run: argocd app create ${{  inputs.component  }} --repo https://github.com/sdevops5427/roboshop-${{  inputs.component  }}-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc
