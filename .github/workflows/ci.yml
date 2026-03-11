@@ -75,7 +75,7 @@ jobs:
         run: |
           url=$(kubectl get svc argocd-server  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
           argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
-          argocd login $url --insecure --username admin --password $argocd_password
+          argocd login argocd-dev.sandeepkumar0088.online --insecure --username admin --password $argocd_password
       - name: Create App in ArgoCD
         run: argocd app create ${{ inputs.component }} --upsert --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --helm-set appVersion = ${{ github.sha }}
       - name: Sync App in ArgoCD
