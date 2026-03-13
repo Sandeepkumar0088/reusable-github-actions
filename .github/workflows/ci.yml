@@ -81,7 +81,7 @@ jobs:
       - name: Sync App in ArgoCD
         run: argocd app sync ${{ inputs.component }}
       - name: ArgoCD App health Check
-        run: argocd app wait ${{ inputs.component }} --timeout 60
+        run: argocd app wait ${{ inputs.component }} --grpc-web --timeout 60
   qa-deploy:
     runs-on: self-hosted
     needs: dev-deploy
