@@ -77,11 +77,11 @@ jobs:
           argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
           argocd login argocd-dev.sandeepkumar0088.online --insecure --username admin --password $argocd_password
       - name: Create App in ArgoCD
-        run: argocd app create ${{ inputs.component }} --upsert --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --helm-set appVersion=${{ github.sha }}
+        run: argocd app create ${{ inputs.component }} --upsert --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web --helm-set appVersion=${{ github.sha }}
       - name: Sync App in ArgoCD
-        run: argocd app sync ${{ inputs.component }}
+        run: argocd app sync ${{ inputs.component }} --grpc-web
       - name: ArgoCD App health Check
-        run: argocd app wait ${{ inputs.component }} --grpc-web --timeout 60
+        run: argocd app wait ${{ inputs.component }} --grpc-web --timeout 120
   qa-deploy:
     runs-on: self-hosted
     needs: dev-deploy
