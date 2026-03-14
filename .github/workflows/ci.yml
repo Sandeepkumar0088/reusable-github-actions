@@ -44,9 +44,9 @@ jobs:
           path: ./
       - name: docker login
         run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 389841108590.dkr.ecr.us-east-1.amazonaws.com
-      - run: docker build -t 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }}:${{github.sha}} .
+      - run: docker build -t 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }} .
         name: docker build
-      - run: docker push 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }}:${{github.sha}}
+      - run: docker push 389841108590.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }}
         name: docker build
   dev-deploy:
     runs-on: self-hosted
@@ -69,7 +69,7 @@ jobs:
       - name: get kubectl config
         run: aws eks update-kubeconfig --name dev
       - name: helm deploy app
-        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership --set apiVersion=${{ github.sha }}
+        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership
 
 #      - name: argocd login
 #        run: |
