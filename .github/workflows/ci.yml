@@ -68,20 +68,20 @@ jobs:
 #          aws eks update-kubeconfig --region us-east-1 --name dev
       - name: get kubectl config
         run: aws eks update-kubeconfig --name dev
-#      - name: helm deploy app
-#        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership --set apiVersion=${{ github.sha }}
+      - name: helm deploy app
+        run: helm upgrade -i ${{  inputs.component  }} . -f templates/${{  inputs.component  }}.yml --install --take-ownership --set apiVersion=${{ github.sha }}
 
-      - name: argocd login
-        run: |
-          url=$(kubectl get svc argocd-server  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
-          argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
-          argocd login argocd-dev.sandeepkumar0088.online --insecure --grpc-web --username admin --password $argocd_password
-      - name: Create App in ArgoCD
-        run: argocd app create ${{ inputs.component }} --upsert --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web --helm-set appVersion=${{ github.sha }}
-      - name: Sync App in ArgoCD
-        run: argocd app sync ${{ inputs.component }} --grpc-web
-      - name: ArgoCD App health Check
-        run: argocd app wait ${{ inputs.component }} --grpc-web --timeout 120
+#      - name: argocd login
+#        run: |
+#          url=$(kubectl get svc argocd-server  -o jsonpath='{.status.loadBalancer.ingress[*].hostname}')
+#          argocd_password=$(kubectl get secrets argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 --decode)
+#          argocd login argocd-dev.sandeepkumar0088.online --insecure --grpc-web --username admin --password $argocd_password
+#      - name: Create App in ArgoCD
+#        run: argocd app create ${{ inputs.component }} --upsert --repo https://github.com/Sandeepkumar0088/roboshop-helm-charts-v1.git --path . --dest-namespace default --dest-server https://kubernetes.default.svc --grpc-web --helm-set appVersion=${{ github.sha }}
+#      - name: Sync App in ArgoCD
+#        run: argocd app sync ${{ inputs.component }} --grpc-web
+#      - name: ArgoCD App health Check
+#        run: argocd app wait ${{ inputs.component }} --grpc-web --timeout 120
   qa-deploy:
     runs-on: self-hosted
     needs: dev-deploy
