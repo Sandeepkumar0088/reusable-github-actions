@@ -43,7 +43,7 @@ jobs:
           name: ${{  inputs.component  }}-jar
           path: ./
       - name: docker login
-        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 389841108590.dkr.ecr.us-east-1.amazonaws.com
+        run: aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 012751250483.dkr.ecr.us-east-1.amazonaws.com
       - run: docker build -t 012751250483.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }} .
         name: docker build
       - run: docker push 012751250483.dkr.ecr.us-east-1.amazonaws.com/${{  inputs.component  }}
